@@ -27,17 +27,24 @@
       .blue = CLR_16(CLR_B(x)),                               \
       .alpha = 0 }
 
+static GtkApplication *app;
+
+static void
+quit(void) {
+  g_application_quit(G_APPLICATION(app));
+}
+
 static GtkWidget *
 window_create(GtkWidget *terminal) {
   GtkWidget *window;
 
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  window = gtk_application_window_new(GTK_APPLICATION(app));
   gtk_window_set_title(GTK_WINDOW(window), "poki pona");
   gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
   gtk_window_set_icon_name(GTK_WINDOW(window), "utilities-terminal-symbolic");
 
   /* Connect some signals */
-  g_signal_connect(window, "delete-event", gtk_main_quit, NULL);
+  g_signal_connect(window, "delete-event", G_CALLBACK(quit), NULL);
 
   /* Put widgets together and run the main loop */
   gtk_container_add(GTK_CONTAINER(window), terminal);
@@ -103,7 +110,7 @@ terminal_create(const char *font) {
      -1, NULL, NULL, NULL
     );
 
-  g_signal_connect(terminal, "child-exited", gtk_main_quit, NULL);
+  g_signal_connect(terminal, "child-exited", G_CALLBACK(quit), NULL);
 
   /* Set up some terminal properties */
   vte_terminal_set_scroll_on_output(VTE_TERMINAL(terminal), FALSE);
@@ -122,16 +129,31 @@ terminal_create(const char *font) {
   return terminal;
 }
 
+static void
+activate() {
+  GtkWidget *window;
+  GList *list;
+
+  list = gtk_application_get_windows(app);
+
+  if (list) {
+    gtk_window_present(GTK_WINDOW(list->data));
+    return;
+  }
+
+  window = window_create(terminal_create("Monospace Regular 13"));
+  gtk_widget_show_all(window);
+}
+
 int
 main(int argc, char *argv[])
 {
-  GtkWidget *window;
+  int status;
 
-  gtk_init(&argc, &argv);
-  window = window_create(terminal_create("Monospace Regular 13"));
+  app = gtk_application_new("org.madhouse.poki-pona", G_APPLICATION_FLAGS_NONE);
+  g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
+  status = g_application_run(G_APPLICATION(app), argc, argv);
+  g_object_unref(app);
 
-  gtk_widget_show_all(window);
-  gtk_main();
-
-  return 0;
+  return status;
 }
