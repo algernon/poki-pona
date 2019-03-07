@@ -10,7 +10,7 @@ bindings, and no window decorations. This is all it does.
 ## Building
 
 ```
-$ meson b && cd $_
-$ ninja
-$ ./poki-pona
+$ meson b
+$ ninja -C b
+$ b/poki-pona
 ```
