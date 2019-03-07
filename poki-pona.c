@@ -53,6 +53,28 @@ window_create(GtkWidget *terminal) {
   return window;
 }
 
+static gboolean
+open_url(GtkWidget *widget, GdkEvent *event) {
+  char *url = vte_terminal_hyperlink_check_event (VTE_TERMINAL(widget), event);
+  char *argv[] = {"xdg-open", url, NULL};
+
+  g_spawn_async
+    (
+     NULL,                        /* working_directory */
+     argv,                        /* argv */
+     NULL,                        /* envp */
+     G_SPAWN_SEARCH_PATH        | /* flags */
+     G_SPAWN_STDERR_TO_DEV_NULL |
+     G_SPAWN_STDOUT_TO_DEV_NULL,
+     NULL,                        /* child_setup */
+     NULL,                        /* user_data */
+     NULL,                        /* child_pid */
+     NULL                         /* error */
+    );
+
+  return TRUE;
+}
+
 static GtkWidget *
 terminal_create(const char *font) {
   GtkWidget *terminal;
@@ -125,6 +147,9 @@ terminal_create(const char *font) {
                                "copy-clipboard", 0);
   gtk_binding_entry_add_signal(bindings, GDK_KEY_v, GDK_CONTROL_MASK | GDK_SHIFT_MASK,
                                "paste-clipboard", 0);
+
+  /* URL opening */
+  g_signal_connect(terminal, "button-press-event", G_CALLBACK(open_url), NULL);
 
   return terminal;
 }
