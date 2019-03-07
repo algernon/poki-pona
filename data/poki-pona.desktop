@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=poki pona
+Comment=A terminal emulator
+Exec=poki-pona
+Icon=utilities-terminal-symbolic
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;System;TerminalEmulator;
+Keywords=shell;prompt;command;commandline;cmd;
