@@ -128,7 +128,7 @@ main(int argc, char *argv[])
   GtkWidget *window;
 
   gtk_init(&argc, &argv);
-  window = window_create(terminal_create("Input Mono 13"));
+  window = window_create(terminal_create("Monospace Regular 13"));
 
   gtk_widget_show_all(window);
   gtk_main();
