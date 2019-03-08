@@ -140,6 +140,7 @@ terminal_create(const char *font) {
   vte_terminal_set_rewrap_on_resize(VTE_TERMINAL(terminal), TRUE);
   vte_terminal_set_mouse_autohide(VTE_TERMINAL(terminal), TRUE);
   vte_terminal_set_allow_hyperlink(VTE_TERMINAL(terminal), TRUE);
+  vte_terminal_set_audible_bell (VTE_TERMINAL(terminal), FALSE);
 
   /* Set up custom key bindings */
   bindings = gtk_binding_set_by_class(VTE_TERMINAL_GET_CLASS(terminal));
