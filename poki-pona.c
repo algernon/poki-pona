@@ -58,6 +58,9 @@ open_url(GtkWidget *widget, GdkEvent *event) {
   char *url = vte_terminal_hyperlink_check_event (VTE_TERMINAL(widget), event);
   char *argv[] = {"xdg-open", url, NULL};
 
+  if (!url)
+    return FALSE;
+
   g_spawn_async
     (
      NULL,                        /* working_directory */
