@@ -142,7 +142,6 @@ terminal_create(const char *font) {
   vte_terminal_set_mouse_autohide(VTE_TERMINAL(terminal), TRUE);
   vte_terminal_set_allow_hyperlink(VTE_TERMINAL(terminal), TRUE);
   vte_terminal_set_audible_bell (VTE_TERMINAL(terminal), FALSE);
-  vte_terminal_set_cursor_shape(VTE_TERMINAL(terminal), VTE_CURSOR_SHAPE_UNDERLINE);
   vte_terminal_set_cursor_blink_mode(VTE_TERMINAL(terminal), VTE_CURSOR_BLINK_OFF);
   vte_terminal_set_scrollback_lines(VTE_TERMINAL(terminal), 0);
 
