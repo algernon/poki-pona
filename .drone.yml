@@ -1,0 +1,25 @@
+kind: pipeline
+name: default
+
+steps:
+  - name: dco
+    image: algernon/drone-plugin-dco
+
+  - name: signature-check
+    image: algernon/drone-plugin-signature-check
+    settings:
+      keys: [ 10E65DC045EABEFCC5193A26AC1E90BAC433F68F ]
+    when:
+      event: tag
+
+  - name: bootstrap
+    image: algernon/drone-language:C
+    commands:
+      - apt update
+      - apt install -y meson libgtk-3-dev libvte-2.91-dev
+
+  - name: build
+    image: algernon/drone-language:C
+    commands:
+      - meson _build
+      - ninja -C _build
