@@ -15,8 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define PCRE2_CODE_UNIT_WIDTH 16
+
 #include <vte/vte.h>
 #include <gtk/gtk.h>
+#include <pcre2.h>
 
 #define CLR_R(x)   (((x) & 0xff0000) >> 16)
 #define CLR_G(x)   (((x) & 0x00ff00) >>  8)
@@ -26,6 +29,9 @@
       .green = CLR_16(CLR_G(x)),                              \
       .blue = CLR_16(CLR_B(x)),                               \
       .alpha = 0 }
+
+#define DINGUS1 "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?"
+#define DINGUS2 "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]*[^]'\\.}>\\) ,\\\"]"
 
 static GtkApplication *app;
 
@@ -54,8 +60,7 @@ window_create(GtkWidget *terminal) {
 }
 
 static gboolean
-open_url(GtkWidget *widget, GdkEvent *event) {
-  char *url = vte_terminal_hyperlink_check_event (VTE_TERMINAL(widget), event);
+xdg_open(gchar *url) {
   char *argv[] = {"xdg-open", url, NULL};
 
   if (!url)
@@ -76,6 +81,32 @@ open_url(GtkWidget *widget, GdkEvent *event) {
     );
 
   return TRUE;
+}
+
+static gboolean
+open_url(GtkWidget *widget, GdkEvent *event) {
+  gchar *url = vte_terminal_hyperlink_check_event (VTE_TERMINAL(widget), event);
+  return xdg_open(url);
+}
+
+static gboolean
+button_press_event(VteTerminal *terminal, GdkEventButton *event) {
+  if (event->type != GDK_BUTTON_PRESS)
+    return FALSE;
+
+  /* Left- or right-click. */
+  if (event->button == 1 || event->button == 3) {
+    if (event->state & GDK_CONTROL_MASK) {
+      gint tag;
+      gchar *url = vte_terminal_match_check_event(terminal, (GdkEvent *)event, &tag);
+      gboolean result = xdg_open(url);
+      g_free(url);
+
+      return result;
+    }
+  }
+
+  return FALSE;
 }
 
 static GtkWidget *
@@ -116,6 +147,21 @@ terminal_create(const char *font) {
   /* Set up the font */
   pfd = pango_font_description_from_string(font);
   vte_terminal_set_font(VTE_TERMINAL(terminal), pfd);
+
+  /* Set up URL matching */
+  VteRegex *dingus1 = vte_regex_new_for_match(DINGUS1, -1, PCRE2_UTF | PCRE2_NO_UTF_CHECK | PCRE2_MULTILINE, NULL);
+  int ret = vte_terminal_match_add_regex(VTE_TERMINAL(terminal), dingus1, 0);
+  vte_terminal_match_set_cursor_name(VTE_TERMINAL(terminal), ret, "hand2");
+
+  VteRegex *dingus2 = vte_regex_new_for_match(DINGUS2, -1, PCRE2_UTF | PCRE2_NO_UTF_CHECK | PCRE2_MULTILINE, NULL);
+  ret = vte_terminal_match_add_regex(VTE_TERMINAL(terminal), dingus2, 0);
+  vte_terminal_match_set_cursor_name(VTE_TERMINAL(terminal), ret, "hand2");
+
+  vte_regex_unref(dingus1);
+  vte_regex_unref(dingus2);
+
+  /* Set up mouse handler */
+  g_signal_connect(G_OBJECT(terminal), "button-press-event", G_CALLBACK(button_press_event), NULL);
 
   /* Start a new shell */
   gchar **envp = g_get_environ();
