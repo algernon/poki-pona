@@ -184,7 +184,6 @@ terminal_create(const char *font) {
   g_signal_connect(terminal, "child-exited", G_CALLBACK(quit), NULL);
 
   /* Set up some terminal properties */
-  vte_terminal_set_rewrap_on_resize(VTE_TERMINAL(terminal), TRUE);
   vte_terminal_set_mouse_autohide(VTE_TERMINAL(terminal), TRUE);
   vte_terminal_set_allow_hyperlink(VTE_TERMINAL(terminal), TRUE);
   vte_terminal_set_audible_bell (VTE_TERMINAL(terminal), FALSE);
