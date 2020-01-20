@@ -215,7 +215,7 @@ activate() {
     return;
   }
 
-  window = window_create(terminal_create("Cascadia Code 13"));
+  window = window_create(terminal_create("Monospace Regular 13"));
   gtk_widget_show_all(window);
 }
 
