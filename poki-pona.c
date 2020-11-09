@@ -28,7 +28,7 @@
 #define CLR_GDK(x) (const GdkRGBA){ .red = CLR_16(CLR_R(x)),  \
       .green = CLR_16(CLR_G(x)),                              \
       .blue = CLR_16(CLR_B(x)),                               \
-      .alpha = 0 }
+      .alpha = 1 }
 
 #define DINGUS1 "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?"
 #define DINGUS2 "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]*[^]'\\.}>\\) ,\\\"]"
@@ -122,10 +122,10 @@ terminal_create(const char *font) {
     (
      VTE_TERMINAL(terminal),
      &CLR_GDK(0x334446),
-     NULL,
+     &CLR_GDK(0xfdf6e3),
      (const GdkRGBA[])
      {
-      CLR_GDK(0xfdf6e3),
+      CLR_GDK(0x586e75),
       CLR_GDK(0xdc322f),
       CLR_GDK(0x859900),
       CLR_GDK(0xb58900),
